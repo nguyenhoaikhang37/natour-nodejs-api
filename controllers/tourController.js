@@ -1,5 +1,5 @@
-const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
+const Tour = require("../models/tourModel");
+const APIFeatures = require("../utils/apiFeatures");
 
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
@@ -31,8 +31,8 @@ const APIFeatures = require('../utils/apiFeatures');
 // };
 
 const get5Tours = (req, res, next) => {
-  req.query.limit = '5';
-  req.query.sort = '-ratingsAverage,price';
+  req.query.limit = "5";
+  req.query.sort = "-ratingsAverage,price";
   next();
 };
 
@@ -49,7 +49,7 @@ const getAllTours = async (req, res) => {
 
     if (req.query.page) {
       res.status(200).json({
-        status: 'success',
+        status: "success",
         results: tours.length,
         data: {
           tours,
@@ -65,7 +65,7 @@ const getAllTours = async (req, res) => {
 
     // SEND RESPONSE
     res.status(200).json({
-      status: 'success',
+      status: "success",
       results: tours.length,
       data: {
         tours,
@@ -73,7 +73,7 @@ const getAllTours = async (req, res) => {
     });
   } catch (err) {
     res.status(404).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }
@@ -103,7 +103,7 @@ const createTour = async (req, res) => {
     const newTour = await Tour.create(req.body);
 
     res.status(201).json({
-      status: 'success',
+      status: "success",
       data: {
         tour: newTour,
       },
@@ -125,7 +125,7 @@ const updateTour = async (req, res) => {
     });
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         tour,
       },
@@ -144,9 +144,9 @@ const deleteTour = async (req, res) => {
     await Tour.deleteOne({ _id: req.params.id });
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
-        message: 'Delete successfully!',
+        message: "Delete successfully!",
       },
     });
   } catch (error) {
@@ -167,13 +167,13 @@ const getTourStats = async (req, res) => {
       },
       {
         $group: {
-          _id: { $toUpper: '$difficulty' },
+          _id: { $toUpper: "$difficulty" },
           numTours: { $sum: 1 },
-          numRatings: { $sum: '$ratingsQuantity' },
-          avgRating: { $avg: '$ratingsAverage' },
-          avgPrice: { $avg: '$price' },
-          minPrice: { $min: '$price' },
-          maxPrice: { $max: '$price' },
+          numRatings: { $sum: "$ratingsQuantity" },
+          avgRating: { $avg: "$ratingsAverage" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
         },
       },
       {
@@ -182,14 +182,14 @@ const getTourStats = async (req, res) => {
     ]);
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         stats,
       },
     });
   } catch (err) {
     res.status(404).json({
-      status: 'fail',
+      status: "fail",
       message: err,
     });
   }
