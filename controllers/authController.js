@@ -25,7 +25,7 @@ function signToken(id) {
 
 const signup = async (req, res) => {
   try {
-    const { username, email, password, passwordConfirm, passwordChangedAt } = req.body;
+    const { username, email, password, passwordConfirm, passwordChangedAt, role } = req.body;
     // Không nên sd cách dưới, bởi vì req.body thì ng dùng có thể thêm các thông tin bảo mật như admin
     // const newUser = await User.create(req.body);
 
@@ -36,6 +36,7 @@ const signup = async (req, res) => {
       password,
       passwordConfirm,
       passwordChangedAt,
+      role,
     });
 
     const token = signToken(newUser._id);
@@ -142,8 +143,21 @@ const protect = async (req, res, next) => {
   }
 };
 
+const restrictTo = (roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to perform this action",
+      });
+    }
+    next();
+  };
+};
+
 module.exports = {
   signup,
   login,
   protect,
+  restrictTo,
 };
