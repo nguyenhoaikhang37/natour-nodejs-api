@@ -1,15 +1,15 @@
-const mongoose = require('mongoose');
-const slugify = require('slugify');
+const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const tourSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'A tour must have a name'],
+      required: [true, "A tour must have a name"],
       unique: true,
       trim: true,
-      maxlength: [40, 'A tour name must have less or equal then 40 characters'],
-      minlength: [10, 'A tour name must have more or equal then 10 characters'],
+      maxlength: [40, "A tour name must have less or equal then 40 characters"],
+      minlength: [10, "A tour name must have more or equal then 10 characters"],
       // validate: [validator.isAlpha, 'Tour name must only contain characters']
     },
     slug: String,
@@ -19,25 +19,25 @@ const tourSchema = new mongoose.Schema(
     },
     duration: {
       type: Number,
-      required: [true, 'A tour must have a duration'],
+      required: [true, "A tour must have a duration"],
     },
     maxGroupSize: {
       type: Number,
-      required: [true, 'A tour must have a group size'],
+      required: [true, "A tour must have a group size"],
     },
     difficulty: {
       type: String,
-      required: [true, 'A tour must have a difficulty'],
+      required: [true, "A tour must have a difficulty"],
       enum: {
-        values: ['easy', 'medium', 'difficult'],
-        message: 'Difficulty is either: easy, medium, difficult',
+        values: ["easy", "medium", "difficult"],
+        message: "Difficulty is either: easy, medium, difficult",
       },
     },
     ratingsAverage: {
       type: Number,
       default: 4.5,
-      min: [1, 'Rating must be above 1.0'],
-      max: [5, 'Rating must be below 5.0'],
+      min: [1, "Rating must be above 1.0"],
+      max: [5, "Rating must be below 5.0"],
     },
     ratingsQuantity: {
       type: Number,
@@ -45,7 +45,7 @@ const tourSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: [true, 'A tour must have a price'],
+      required: [true, "A tour must have a price"],
     },
     priceDiscount: {
       type: Number,
@@ -55,7 +55,7 @@ const tourSchema = new mongoose.Schema(
           // * Lưu ý: điều này chỉ đúng ở tài liệu hiện tại về create data
           return val < this.price;
         },
-        'Discount price ({VALUE}) should be below regular price',
+        "Discount price ({VALUE}) should be below regular price",
       ],
       // C2
       // validate: {
@@ -69,7 +69,7 @@ const tourSchema = new mongoose.Schema(
     summary: {
       type: String,
       trim: true,
-      required: [true, 'A tour must have a description'],
+      required: [true, "A tour must have a description"],
     },
     description: {
       type: String,
@@ -77,7 +77,7 @@ const tourSchema = new mongoose.Schema(
     },
     imageCover: {
       type: String,
-      required: [true, 'A tour must have a cover image'],
+      required: [true, "A tour must have a cover image"],
     },
     images: [String],
     createdAt: {
@@ -94,13 +94,13 @@ const tourSchema = new mongoose.Schema(
 );
 
 // Dùng để thêm dữ liệu ảo khi user get dữ liệu (lưu ý: dữ liệu thêm mới này sẽ k nằm trong DB nên yên tâm nó sẽ k làm tăng memory)
-tourSchema.virtual('durationWeeks').get(function () {
+tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
 });
 
 // Document middleware (bổ sung slug khi thêm dữ liệu)
 // * Lưu ý: runs before .save() and .create()
-tourSchema.pre('save', function (next) {
+tourSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
@@ -111,11 +111,11 @@ tourSchema.pre(/^find/, function (next) {
 });
 
 // Middleware tổng hợp
-tourSchema.pre('aggregate', function (next) {
+tourSchema.pre("aggregate", function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   next();
 });
 
-const Tour = mongoose.model('Tour', tourSchema);
+const Tour = mongoose.model("Tour", tourSchema);
 
 module.exports = Tour;

@@ -30,18 +30,19 @@ app.use("/api/v1/users", userRouter);
 
 app.all("*", (req, res, next) => {
   // C1
-  // res.status(404).json({
-  //   success: false,
-  //   message: `Can't find ${req.originalUrl} on this server`,
-  // });
+  res.status(404).json({
+    success: false,
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
 
-  // C2
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  err.statusCode = 404;
+  // * C2 sử dụng chung với middleware bắt lỗi bên dưới
+  // const err = new Error(`Can't find ${req.originalUrl} on this server`);
+  // err.statusCode = 404;
 
-  next(err);
+  // next(err);
 });
 
+// * middleware bắt lỗi
 // app.use((err, req, res, next) => {
 //   err.statusCode = err.statusCode || 500;
 //   err.success = err.success || false;
