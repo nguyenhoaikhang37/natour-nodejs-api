@@ -1,5 +1,21 @@
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
+const dotenv = require("dotenv");
 const User = require("../models/userModel");
+
+dotenv.config();
+
+function handleErrorProtect(error) {
+  switch (error) {
+    case "TokenExpiredError":
+      return "Your token has expired! Please log in again";
+    case "JsonWebTokenError":
+      return "Invalid token. Please log in again";
+
+    default:
+      return "Something went wrong";
+  }
+}
 
 function signToken(id) {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -9,7 +25,7 @@ function signToken(id) {
 
 const signup = async (req, res) => {
   try {
-    const { username, email, password, passwordConfirm } = req.body;
+    const { username, email, password, passwordConfirm, passwordChangedAt } = req.body;
     // Không nên sd cách dưới, bởi vì req.body thì ng dùng có thể thêm các thông tin bảo mật như admin
     // const newUser = await User.create(req.body);
 
@@ -19,6 +35,7 @@ const signup = async (req, res) => {
       email,
       password,
       passwordConfirm,
+      passwordChangedAt,
     });
 
     const token = signToken(newUser._id);
@@ -97,14 +114,30 @@ const protect = async (req, res, next) => {
     }
 
     // 3. Verification token
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-    console.log("⭐️ · file: authController.js · line 101 · decoded", decoded);
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      return res.status(401).json({
+        success: false,
+        message: "The user belonging to this token does no longer exist",
+      });
+    }
 
+    // 4. Check if user changed password after the token issued
+    if (freshUser.changedPasswordAfter(decoded.iat)) {
+      return res.status(401).json({
+        success: false,
+        message: "User recently changed password! Please log in again.",
+      });
+    }
+
+    // GRANT ACCESS TO PROTECTED ROUTE
+    req.user = freshUser;
     next();
   } catch (error) {
     res.status(404).json({
       success: false,
-      error,
+      error: handleErrorProtect(error.name),
     });
   }
 };
