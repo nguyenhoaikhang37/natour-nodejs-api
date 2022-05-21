@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -50,9 +55,15 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+
+  next();
+});
+
 // Hàm check password bằng bcrypt
-userSchema.methods.verifyPassword = (candidatePassword, password) => {
-  return bcrypt.compare(candidatePassword, password);
+userSchema.methods.verifyPassword = async (candidatePassword, password) => {
+  return await bcrypt.compare(candidatePassword, password);
 };
 
 userSchema.methods.changedPasswordAfter = function (jwtTimestamp) {

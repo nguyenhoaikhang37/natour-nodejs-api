@@ -155,9 +155,50 @@ const restrictTo = (roles) => {
   };
 };
 
+const updatePassword = async (req, res) => {
+  // 1) Get user from collection
+  const user = await User.findById(req.user.id).select("+password");
+
+  // 2) Check if POSTed current password is correct
+  if (!(await user.verifyPassword(req.body.currentPassword, user.password))) {
+    return res.status(400).json({
+      success: false,
+      message: "The password is wrong, please try again",
+    });
+  }
+
+  // 3) If so, update password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.password;
+  await user.save();
+
+  // 4) Log user in, send JWT
+  const token = signToken(user._id);
+
+  res.status(201).json({
+    success: true,
+    token,
+  });
+};
+
+function filteredBody(obj, ...allowedFields) {
+  // obj {username: "a", email: "b", role:"admin"}
+  // allowedFields ["username","email"]
+  const newObj = {};
+
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) {
+      newObj[el] = obj[el];
+    }
+  });
+
+  return newObj;
+}
+
 module.exports = {
   signup,
   login,
   protect,
   restrictTo,
+  updatePassword,
 };
