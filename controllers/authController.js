@@ -23,6 +23,31 @@ function signToken(id) {
   });
 }
 
+const createSendToken = (user, statusCode = 200, res) => {
+  const token = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    secure: false,
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.secure = true;
+  }
+
+  res.cookie("jwt", token, cookieOptions);
+
+  // REMOVE PASSWORD
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    success: true,
+    token,
+    data: user,
+  });
+};
+
 const signup = async (req, res) => {
   try {
     const { username, email, password, passwordConfirm, passwordChangedAt, role } = req.body;
@@ -39,16 +64,9 @@ const signup = async (req, res) => {
       role,
     });
 
-    const token = signToken(newUser._id);
-
     // Remove password before send response
     newUser.password = undefined;
-
-    res.status(201).json({
-      success: true,
-      token,
-      data: newUser,
-    });
+    createSendToken(newUser, 201, res);
   } catch (error) {
     res.status(404).json({
       success: false,
@@ -80,12 +98,7 @@ const login = async (req, res) => {
       });
     }
     // 3. Nếu thoả đk, tạo token mới và trả về cho ng dùng
-    const token = signToken(correctUser._id);
-
-    res.status(201).json({
-      success: true,
-      token,
-    });
+    createSendToken(correctUser, 201, res);
   } catch (error) {
     res.status(404).json({
       success: false,
@@ -173,27 +186,8 @@ const updatePassword = async (req, res) => {
   await user.save();
 
   // 4) Log user in, send JWT
-  const token = signToken(user._id);
-
-  res.status(201).json({
-    success: true,
-    token,
-  });
+  createSendToken(user, 201, res);
 };
-
-function filteredBody(obj, ...allowedFields) {
-  // obj {username: "a", email: "b", role:"admin"}
-  // allowedFields ["username","email"]
-  const newObj = {};
-
-  Object.keys(obj).forEach((el) => {
-    if (allowedFields.includes(el)) {
-      newObj[el] = obj[el];
-    }
-  });
-
-  return newObj;
-}
 
 module.exports = {
   signup,

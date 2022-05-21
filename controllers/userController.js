@@ -1,6 +1,20 @@
 const { findByIdAndUpdate } = require("../models/userModel");
 const User = require("../models/userModel");
 
+function filteredBody(obj, ...allowedFields) {
+  // obj {username: "a", email: "b", role:"admin"}
+  // allowedFields ["username","email"]
+  const newObj = {};
+
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) {
+      newObj[el] = obj[el];
+    }
+  });
+
+  return newObj;
+}
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
