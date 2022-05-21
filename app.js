@@ -4,19 +4,51 @@ const app = express();
 const morgan = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 
-// 1) MIDDLEWARE
+// 1) GLOBAL MIDDLEWARE
+
+// Set security HTTP headers
+app.use(helmet());
+
+// Development logging
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-app.use(express.json());
-app.use(helmet());
+// Limit request from SAME IP
+const limiter = rateLimit({
+  max: 3,
+  windowMs: 60 * 60 * 1000,
+  message: "Too many requests from this IP, please try again in an hour!",
+});
+app.use("/api", limiter);
+
 app.use(cors());
+
+// Body parser, reading data from body into req.body
+app.use(
+  express.json({
+    limit: "10kb",
+  })
+);
+
+// Serving static files
 app.use(express.static(`${__dirname}/public`));
+
+// Data sanitization against NoSQL query injection
+// Trong Mongodb, nếu truy vấn {email: {"$gt": ""}} sẽ luôn trả về tất cả giá trị
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
