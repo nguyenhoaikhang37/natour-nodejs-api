@@ -10,15 +10,15 @@ const router = express.Router();
 // });
 
 const {
-  getTourStats,
-  getAllTours,
-  get5Tours,
-  getTour,
-  createTour,
-  updateTour,
-  deleteTour,
-  // checkId,
-  // checkBody,
+    getTourStats,
+    getAllTours,
+    get5Tours,
+    getTour,
+    createTour,
+    updateTour,
+    deleteTour,
+    // checkId,
+    // checkBody,
 } = require("../controllers/tourController");
 const { protect, restrictTo } = require("../controllers/authController");
 
@@ -28,9 +28,9 @@ router.route("/tour-stats").get(getTourStats);
 router.route("/").get(protect, getAllTours).post(createTour);
 router.route("/top-5").get(get5Tours, getAllTours);
 router
-  .route("/:id")
-  .get(getTour)
-  .patch(updateTour)
-  .delete(protect, restrictTo(["lead-guide", "admin"]), deleteTour);
+    .route("/:id")
+    .get(protect, getTour)
+    .patch(updateTour)
+    .delete(protect, restrictTo(["lead-guide", "admin"]), deleteTour);
 
 module.exports = router;
