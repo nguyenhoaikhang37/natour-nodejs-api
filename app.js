@@ -7,6 +7,7 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
+const hpp = require("hpp");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -23,7 +24,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Limit request from SAME IP
 const limiter = rateLimit({
-  max: 3,
+  max: 100,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP, please try again in an hour!",
 });
@@ -47,6 +48,9 @@ app.use(mongoSanitize());
 
 // Data sanitization against XSS
 app.use(xss());
+
+// ?sort=price&sort=-price sẽ bị lỗi, nếu thêm middleware này sẽ lấy cái sort sau cùng
+app.use(hpp());
 
 // Test middleware
 app.use((req, res, next) => {
