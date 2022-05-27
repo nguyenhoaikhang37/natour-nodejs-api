@@ -21,6 +21,10 @@ const {
     // checkBody,
 } = require("../controllers/tourController");
 const { protect, restrictTo } = require("../controllers/authController");
+const reviewRouter = require("./reviewRoutes");
+
+// Nested routes
+router.use("/:tourId/reviews", reviewRouter);
 
 // Middleware để check id có đúng hay không
 // router.param('id', checkId);

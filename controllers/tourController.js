@@ -81,10 +81,12 @@ const getAllTours = async (req, res) => {
 const getTour = async (req, res) => {
     try {
         // const tour = await Tour.findById(req.params.id);
-        const tour = await Tour.findById(req.params.id).populate({
-            path: "guides",
-            select: "-__v",
-        });
+        const tour = await Tour.findById(req.params.id)
+            .populate({
+                path: "guides",
+                select: "-__v",
+            })
+            .populate("reviews");
 
         res.status(200).json({
             success: true,

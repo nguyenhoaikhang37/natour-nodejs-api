@@ -128,6 +128,13 @@ tourSchema.virtual("durationWeeks").get(function () {
     return this.duration / 7;
 });
 
+// Virtual populate (Vì document cha không có array của document con, nên dùng cách này để lấy ra array)
+tourSchema.virtual("reviews", {
+    ref: "Review",
+    foreignField: "tour",
+    localField: "_id",
+});
+
 // Document middleware (bổ sung slug khi thêm dữ liệu)
 // * Lưu ý: runs before .save() and .create()
 tourSchema.pre("save", function (next) {
