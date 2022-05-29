@@ -1,5 +1,6 @@
 const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/apiFeatures");
+const factory = require("./handlerFactory");
 
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
@@ -144,25 +145,27 @@ const updateTour = async (req, res) => {
         });
     }
 };
-const deleteTour = async (req, res) => {
-    try {
-        await Tour.deleteOne({ _id: req.params.id });
 
-        res.status(200).json({
-            status: "success",
-            data: {
-                message: "Delete successfully!",
-            },
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            data: {
-                message: error,
-            },
-        });
-    }
-};
+const deleteTour = factory.deleteOne(Tour);
+// const deleteTour = async (req, res) => {
+//     try {
+//         await Tour.deleteOne({ _id: req.params.id });
+
+//         res.status(200).json({
+//             status: "success",
+//             data: {
+//                 message: "Delete successfully!",
+//             },
+//         });
+//     } catch (error) {
+//         res.status(400).json({
+//             success: false,
+//             data: {
+//                 message: error,
+//             },
+//         });
+//     }
+// };
 
 const getTourStats = async (req, res) => {
     try {
