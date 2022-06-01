@@ -63,6 +63,10 @@ const createUser = (req, res) => {
     });
 };
 
+const getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+};
 const getAllUsers = factory.getAll(User);
 const getUser = factory.getOne(User);
 const updateUser = factory.updateOne(User);
@@ -76,4 +80,5 @@ module.exports = {
     deleteUser,
     updateMe,
     deleteMe,
+    getMe,
 };

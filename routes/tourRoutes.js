@@ -28,13 +28,16 @@ router.use("/:tourId/reviews", reviewRouter);
 
 // Middleware để check id có đúng hay không
 // router.param('id', checkId);
+router
+    .route("/")
+    .get(getAllTours)
+    .post(protect, restrictTo(["admin", "lead-guide"]), createTour);
 router.route("/tour-stats").get(getTourStats);
-router.route("/").get(protect, getAllTours).post(createTour);
 router.route("/top-5").get(get5Tours, getAllTours);
 router
     .route("/:id")
-    .get(protect, getTour)
-    .patch(updateTour)
+    .get(getTour)
+    .patch(protect, restrictTo(["admin", "lead-guide"]), updateTour)
     .delete(protect, restrictTo(["lead-guide", "admin"]), deleteTour);
 
 module.exports = router;
