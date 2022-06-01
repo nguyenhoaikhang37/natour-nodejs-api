@@ -16,40 +16,6 @@ function filteredBody(obj, ...allowedFields) {
     return newObj;
 }
 
-const getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json({
-            success: true,
-            data: users,
-        });
-    } catch (error) {
-        res.status(404).json({
-            success: false,
-            message: error,
-        });
-    }
-};
-const createUser = (req, res) => {
-    res.status(500).json({
-        status: "error",
-        message: "This route is not yet defined",
-    });
-};
-const getUser = (req, res) => {
-    res.status(500).json({
-        status: "error",
-        message: "This route is not yet defined",
-    });
-};
-const updateUser = (req, res) => {
-    res.status(500).json({
-        status: "error",
-        message: "This route is not yet defined",
-    });
-};
-const deleteUser = factory.deleteOne(User);
-
 const updateMe = async (req, res) => {
     try {
         // 1. Loại bỏ những thông tin cần bảo mật như role: "admin"
@@ -89,6 +55,18 @@ const deleteMe = async (req, res) => {
         });
     }
 };
+
+const createUser = (req, res) => {
+    res.status(500).json({
+        status: "error",
+        message: "This route is not yet defined! Please use /signup instead",
+    });
+};
+
+const getAllUsers = factory.getAll(User);
+const getUser = factory.getOne(User);
+const updateUser = factory.updateOne(User);
+const deleteUser = factory.deleteOne(User);
 
 module.exports = {
     getAllUsers,
